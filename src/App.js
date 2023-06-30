@@ -59,14 +59,8 @@ function App() {
           .{" "}
         </h2>
         <h2>
-          Created by{" "}
-          <a href="https://twitter.com/" target="_blank">
-            Twitter
-          </a>
-        </h2>
-        <h2>
           View code on{" "}
-          <a href="https://github.com/" target="_blank">
+          <a href="https://github.com/TA-CL/Arsec" target="_blank">
             Github
           </a>
         </h2>

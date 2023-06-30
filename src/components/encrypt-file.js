@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
 import Arweave from "arweave";
+import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Box, Text, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import aesjs from "aes-js";
 
 const arweave = Arweave.init({
     host: "arweave.net",
@@ -33,8 +34,12 @@ const EncryptFile = () => {
                 try {
                     // Server-side validation can be performed here before processing the file
 
+                    const encryptionSecretKey = process.env.ENCRYPTION_SECRET_KEY;
+
+                    const encryptedBuffer = encrypt(buffer, encryptionSecretKey);
+
                     const transaction = await arweave.createTransaction({
-                        data: buffer,
+                        data: encryptedBuffer,
                     });
                     transaction.addTag("Content-Type", file.type);
 
@@ -67,6 +72,18 @@ const EncryptFile = () => {
             scale: 1.1,
             transition: { duration: 0.3 },
         },
+    };
+
+    const encrypt = (buffer, encryptionSecretKey) => {
+        const keyBytes = aesjs.utils.utf8.toBytes(encryptionSecretKey);
+
+        // Create an AES-CTR cipher object with the key
+        const aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes);
+
+        // Encrypt the buffer
+        const encryptedBytes = aesCtr.encrypt(buffer);
+
+        return encryptedBytes;
     };
 
     return (
