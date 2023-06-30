@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Box, Text, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import aesjs from "aes-js";
+import { window } from "global";
 
 const arweave = Arweave.init({
     host: "arweave.net",
@@ -26,44 +26,56 @@ const EncryptFile = () => {
 
     const handleUpload = useCallback(async () => {
         if (file) {
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onloadend = async () => {
-                const buffer = new Uint8Array(reader.result);
+            try {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = async () => {
+                    const buffer = new Uint8Array(reader.result);
 
-                try {
-                    // Server-side validation can be performed here before processing the file
+                    try {
+                        // Server-side validation can be performed here before processing the file
 
-                    const encryptionSecretKey = process.env.ENCRYPTION_SECRET_KEY;
+                        const encryptionSecretKey = process.env.ENCRYPTION_SECRET_KEY;
 
-                    const encryptedBuffer = encrypt(buffer, encryptionSecretKey);
+                        const encryptedBuffer = await encrypt(buffer, encryptionSecretKey);
 
-                    const transaction = await arweave.createTransaction({
-                        data: encryptedBuffer,
-                    });
-                    transaction.addTag("Content-Type", file.type);
+                        const transaction = await arweave.createTransaction({
+                            data: encryptedBuffer,
+                        });
+                        transaction.addTag("Content-Type", file.type);
 
-                    // Add additional tags if required
-                    transaction.addTag("Encrypted", "true");
+                        // Add additional tags if required
+                        transaction.addTag("Encrypted", "true");
 
-                    await arweave.transactions.sign(transaction);
-                    let uploader = await arweave.transactions.getUploader(transaction);
-                    while (!uploader.isComplete) {
-                        await uploader.uploadChunk();
-                        console.log(
-                            `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
+                        await arweave.transactions.sign(transaction);
+                        let uploader = await arweave.transactions.getUploader(transaction);
+                        while (!uploader.isComplete) {
+                            await uploader.uploadChunk();
+                            console.log(
+                                `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
+                            );
+                        }
+
+                        setFile(null);
+                        alert(
+                            "Upload Successful. Please allow several minutes for the transaction to finalize."
                         );
+                    } catch (error) {
+                        console.error("Upload Error:", error);
+                        alert("An error occurred during file upload. Please try again.");
                     }
+                };
 
-                    setFile(null);
-                    alert(
-                        "Upload Successful. Please allow several minutes for the transaction to finalize."
-                    );
-                } catch (error) {
-                    console.error("Upload Error:", error);
-                    alert("An error occurred during file upload. Please try again.");
-                }
-            };
+                reader.onerror = () => {
+                    console.error("File Read Error:", reader.error);
+                    alert("An error occurred while reading the file. Please try again.");
+                };
+            } catch (error) {
+                console.error("File Read Error:", error);
+                alert("An error occurred while reading the file. Please try again.");
+            }
+        } else {
+            alert("No file selected.");
         }
     }, [file]);
 
@@ -74,16 +86,29 @@ const EncryptFile = () => {
         },
     };
 
-    const encrypt = (buffer, encryptionSecretKey) => {
-        const keyBytes = aesjs.utils.utf8.toBytes(encryptionSecretKey);
+    const encrypt = async (buffer, encryptionSecretKey) => {
+        const key = await window.crypto.subtle.importKey(
+            "raw",
+            new TextEncoder().encode(encryptionSecretKey),
+            {
+                name: "AES-CTR",
+                length: 256,
+            },
+            false,
+            ["encrypt"]
+        );
 
-        // Create an AES-CTR cipher object with the key
-        const aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes);
+        const encryptedBuffer = await window.crypto.subtle.encrypt(
+            {
+                name: "AES-CTR",
+                counter: new Uint8Array(16),
+                length: 64,
+            },
+            key,
+            buffer
+        );
 
-        // Encrypt the buffer
-        const encryptedBytes = aesCtr.encrypt(buffer);
-
-        return encryptedBytes;
+        return encryptedBuffer;
     };
 
     return (
@@ -143,3 +168,4 @@ const EncryptFile = () => {
 };
 
 export default EncryptFile;
+

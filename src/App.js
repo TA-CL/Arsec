@@ -64,6 +64,11 @@ const EncryptFile = () => {
           alert("An error occurred during file upload. Please try again.");
         }
       };
+
+      reader.onerror = () => {
+        console.error("File Read Error:", reader.error);
+        alert("An error occurred while reading the file. Please try again.");
+      };
     }
   }, [file]);
 
@@ -143,3 +148,4 @@ const EncryptFile = () => {
 };
 
 export default EncryptFile;
+
