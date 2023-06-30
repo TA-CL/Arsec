@@ -1,0 +1,62 @@
+{
+  "name": "arpics",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@apollo/client": "^3.7.4",
+    "@chakra-ui/react": "^2.7.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "arweave": "^1.13.7",
+    "arweavekit": "^1.2.12",
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.3.1",
+    "dropzone": "^6.0.0-beta.2",
+    "framer-motion": "^10.12.18",
+    "fs": "^0.0.1-security",
+    "graphql": "^15.8.0",
+    "libsodium-wrappers": "^0.7.11",
+    "os": "^0.1.2",
+    "os-browserify": "^0.3.0",
+    "path": "^0.12.7",
+    "path-browserify": "^1.0.1",
+    "pouchdb": "^8.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.3.2",
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.88.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
